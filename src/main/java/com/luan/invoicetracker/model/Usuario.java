@@ -34,7 +34,7 @@ public class Usuario {
 	@Email(message = "Email inválido")
 	private String email;
 	
-	@NotEmpty(message = "Campo email é obrigatório")
+	@NotEmpty(message = "Campo senha é obrigatório")
 	private String senha;
 	private String endereco;
 	private String telefone;
