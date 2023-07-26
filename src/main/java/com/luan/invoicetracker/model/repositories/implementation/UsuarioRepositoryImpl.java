@@ -64,14 +64,17 @@ public class UsuarioRepositoryImpl implements UsuarioRepository<Usuario> {
 			// mandar url na tabela de verificao
 			jdbc.update(UsuarioQuery.INSERT_CONTA_VERIFICACAO_URL_QUERY, Map.of("usuarioId", usuario.getId(), "url", verificaUrl));
 			// mandar email para o usuario com a url de verificação
+			//emailService.mandaVerificacaoUrl(usuario.getNome(), usuario.getEmail(), verificaUrl, true, verificacaoTipo.CONTA);
+			usuario.setAtivo(false);
+			usuario.setNotBloqueado(false);
 			// retornar o novo usuario
+			return usuario;
 			// se ocorrer um erro, mandar uma msg com o erro
 		} catch (EmptyResultDataAccessException exception) {
-			
+			 throw new ApiException("Não foi encontrado nenhum cargo com esse nome." + roleTipo.ROLE_USUARIO.name());
 		} catch (Exception e) {
-
+			 throw new ApiException("Ocorreu um erro, por favor tente novamente");
 		}
-		return null;
 	}
 
 	@Override
