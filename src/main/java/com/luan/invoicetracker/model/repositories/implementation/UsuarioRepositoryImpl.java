@@ -62,6 +62,7 @@ public class UsuarioRepositoryImpl implements UsuarioRepository<Usuario> {
 			// mandar verificao Url
 			String verificaUrl = getVerificaUrl(UUID.randomUUID().toString(), verificacaoTipo.CONTA.getTipo());
 			// mandar url na tabela de verificao
+			jdbc.update(UsuarioQuery.INSERT_CONTA_VERIFICACAO_URL_QUERY, Map.of("usuarioId", usuario.getId(), "url", verificaUrl));
 			// mandar email para o usuario com a url de verificação
 			// retornar o novo usuario
 			// se ocorrer um erro, mandar uma msg com o erro
