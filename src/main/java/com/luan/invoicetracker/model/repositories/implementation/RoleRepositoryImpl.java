@@ -13,6 +13,7 @@ import com.luan.invoicetracker.enums.RoleTipo;
 import com.luan.invoicetracker.exception.ApiException;
 import com.luan.invoicetracker.model.Role;
 import com.luan.invoicetracker.model.repositories.RoleRepository;
+import com.luan.invoicetracker.query.RoleQuery;
 import com.luan.invoicetracker.rowmapper.RoleRowMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -23,12 +24,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RoleRepositoryImpl implements RoleRepository<Role> {
 	
-	private static final String INSERT_ROLE_TO_USUARIO_QUERY = "";
-	private static final String SELECT_ROLE_BY_NOME_QUERY = "";
 	private final NamedParameterJdbcTemplate jdbc;
 	private final RoleRepository<Role> roleRepository;
 	private final BCryptPasswordEncoder encoder;
 	
+	@Autowired
+	private RoleQuery query;
+
 	@Autowired
 	private RoleTipo roleTipo;
 
@@ -61,8 +63,8 @@ public class RoleRepositoryImpl implements RoleRepository<Role> {
 	public void addRoleToUsuario(Long usuarioId, String roleNome) {
 		log.info("Adicionado cargo {} ao usuario id: {}", roleNome, usuarioId);
 		try {
-			Role role = jdbc.queryForObject(SELECT_ROLE_BY_NOME_QUERY, Map.of("roleNome", roleNome), new RoleRowMapper());
-			jdbc.update(INSERT_ROLE_TO_USUARIO_QUERY, Map.of("usuarioId", usuarioId, "roleId", role.getId()));
+			Role role = jdbc.queryForObject(RoleQuery.SELECT_ROLE_BY_NOME_QUERY, Map.of("roleNome", roleNome), new RoleRowMapper());
+			jdbc.update(RoleQuery.INSERT_ROLE_TO_USUARIO_QUERY, Map.of("usuarioId", usuarioId, "roleId", role.getId()));
 		} catch (EmptyResultDataAccessException exception) {
 			 throw new ApiException("Não foi encontrado nenhum cargo com esse nome." + roleTipo.ROLE_USUARIO.name());
 		} catch (Exception e) {
