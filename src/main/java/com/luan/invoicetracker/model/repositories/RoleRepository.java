@@ -14,5 +14,10 @@ public interface RoleRepository<T extends Role> {
 	/* ----///---- */ 
 	
 	void addRoleToUsuario(Long usuarioId, String roleNome);
+	Role getRoleByUsuarioId(Long usuarioId);
+	Role getRoleByUsuarioEmail(String email);
+	void update  (Long usuarioId, String roleNome);
+
+
 
 }

@@ -70,8 +70,6 @@ public class UsuarioRepositoryImpl implements UsuarioRepository<Usuario> {
 			// retornar o novo usuario
 			return usuario;
 			// se ocorrer um erro, mandar uma msg com o erro
-		} catch (EmptyResultDataAccessException exception) {
-			 throw new ApiException("Não foi encontrado nenhum cargo com esse nome." + roleTipo.ROLE_USUARIO.name());
 		} catch (Exception e) {
 			 throw new ApiException("Ocorreu um erro, por favor tente novamente");
 		}
