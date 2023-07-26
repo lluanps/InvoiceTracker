@@ -3,16 +3,21 @@ package com.luan.invoicetracker.model.repositories.implementation;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.luan.invoicetracker.enums.RoleTipo;
+import com.luan.invoicetracker.enums.VerificacaoTipo;
 import com.luan.invoicetracker.exception.ApiException;
 import com.luan.invoicetracker.model.Role;
 import com.luan.invoicetracker.model.Usuario;
@@ -29,8 +34,9 @@ import lombok.extern.slf4j.Slf4j;
 public class UsuarioRepositoryImpl implements UsuarioRepository<Usuario> {
 
 	private final NamedParameterJdbcTemplate jdbc;
-	
 	private final RoleRepository<Role> roleRepository;
+	private final BCryptPasswordEncoder encoder;
+	
 	
 	@Autowired
 	private UsuarioQuery query;
@@ -38,6 +44,9 @@ public class UsuarioRepositoryImpl implements UsuarioRepository<Usuario> {
 	@Autowired
 	private RoleTipo roleTipo;
 
+	@Autowired
+	private VerificacaoTipo verificacaoTipo;
+	
 	@Override
 	public Usuario create(Usuario usuario) {
 		//verificar se o email é unico
@@ -50,16 +59,17 @@ public class UsuarioRepositoryImpl implements UsuarioRepository<Usuario> {
 			usuario.setId(Objects.requireNonNull(holder.getKey().longValue()));
 			// add Role para Usuario
 			roleRepository.addRoleToUsuario(usuario.getId(), roleTipo.ROLE_USUARIO.name());
+			// mandar verificao Url
+			String verificaUrl = getVerificaUrl(UUID.randomUUID().toString(), verificacaoTipo.CONTA.getTipo());
+			// mandar url na tabela de verificao
+			// mandar email para o usuario com a url de verificação
+			// retornar o novo usuario
+			// se ocorrer um erro, mandar uma msg com o erro
 		} catch (EmptyResultDataAccessException exception) {
 			
 		} catch (Exception e) {
 
 		}
-		// mandar verificao Url
-		// mandar url na tabela de verificao
-		// mandar email para o usuario com a url de verificação
-		// retornar o novo usuario
-		// se ocorrer um erro, mandar uma msg com o erro
 		return null;
 	}
 
@@ -89,7 +99,16 @@ public class UsuarioRepositoryImpl implements UsuarioRepository<Usuario> {
 	}
 
 	private SqlParameterSource getSqlParameterSource(Usuario usuario) {
-		return null;
+		return new MapSqlParameterSource()
+				.addValue("nome", usuario.getNome())
+				.addValue("sobrenome", usuario.getSobrenome())
+				.addValue("email", usuario.getEmail())
+				.addValue("senha", encoder.encode(usuario.getSenha()));
+	}
+	
+	private String getVerificaUrl(String key, String tipo) {
+		return ServletUriComponentsBuilder.fromCurrentContextPath()
+				.path("/usuario/verifica/" + tipo + "/" + key).toString();
 	}
 
 }
